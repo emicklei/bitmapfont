@@ -10,10 +10,10 @@ import (
 
 	_ "image/png"
 
-	"github.com/ubanita/bitmapfont"
+	"github.com/emicklei/bitmapfont"
 
 	"github.com/go-gl/gl/v2.1/gl"
-	"github.com/go-gl/glfw/v3.1/glfw"
+	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 const (
@@ -126,7 +126,7 @@ func newTexture(imgFile io.Reader) (uint32, error) {
 
 func renderText() {
 
-	var multitext = `Ubanita.com
+	var multitext = `Ubanita
 together, we play`
 
 	gl.BindTexture(gl.TEXTURE_2D, fontTexture)
