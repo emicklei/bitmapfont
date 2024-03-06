@@ -58,13 +58,14 @@ func main() {
 
 func initFont() {
 	// read font
-	r := bitmapfont.Reader{}
-	err := r.Read("test_ubuntu.fnt")
+	r := bitmapfont.NewReader()
+	thefont, err := r.Read("test_ubuntu.fnt")
 	if err != nil {
 		panic(err)
 	}
-	font = r.Font()
+	font = thefont
 
+	// read font texture
 	f, err := os.Open("test_ubuntu.png")
 	if err != nil {
 		panic(err)
