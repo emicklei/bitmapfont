@@ -126,6 +126,7 @@ func newTexture(imgFile io.Reader) (uint32, error) {
 }
 
 func renderText() {
+	var x, y, w, h float32 = 10, 10, 300, 100
 
 	var multitext = `Ubanita
 together, we play`
@@ -133,7 +134,7 @@ together, we play`
 	gl.BindTexture(gl.TEXTURE_2D, fontTexture)
 	gl.Enable(gl.TEXTURE_2D)
 
-	t := bitmapfont.NewText(multitext, 10, 10, 0, 0, font)
+	t := bitmapfont.NewText(multitext, x, y, w, h, font)
 	t.Render(func(vertices []bitmapfont.TextureVertex) {
 		gl.Begin(gl.QUADS)
 		for _, each := range vertices {
@@ -143,6 +144,15 @@ together, we play`
 		gl.End()
 	})
 	gl.Disable(gl.TEXTURE_2D)
+
+	// render bounding box
+	gl.Begin(gl.LINE_LOOP)
+	gl.Vertex2f(x, y)
+	gl.Vertex2f(x+w, y)
+	gl.Vertex2f(x+w, y+h)
+	gl.Vertex2f(x, y+h)
+	gl.End()
+
 }
 
 func drawScene() {
