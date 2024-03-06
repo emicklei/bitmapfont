@@ -18,7 +18,7 @@ type Info struct {
 	Outline  int    // The outline thickness for the characters.
 }
 
-func BuildInfo(kvs map[string]value) Info {
+func buildInfo(kvs map[string]value) Info {
 	i := Info{}
 	for k, v := range kvs {
 		switch k {
@@ -65,7 +65,7 @@ type Common struct {
 	BlueChnl   int     // Set to 0 if the channel holds the glyph data, 1 if it holds the outline, 2 if it holds the glyph and the outline, 3 if its set to zero, and 4 if its set to one.
 }
 
-func BuildCommon(kvs map[string]value) Common {
+func buildCommon(kvs map[string]value) Common {
 	c := Common{}
 	for k, v := range kvs {
 		switch k {
@@ -92,7 +92,7 @@ type Page struct {
 	File string // The texture file name.
 }
 
-func BuildPage(kvs map[string]value) Page {
+func buildPage(kvs map[string]value) Page {
 	p := Page{}
 	for k, v := range kvs {
 		switch k {
@@ -120,7 +120,7 @@ type Char struct {
 	Letter   string  // The letter is represents
 }
 
-func BuildChar(kvs map[string]value) Char {
+func buildChar(kvs map[string]value) Char {
 	c := Char{}
 	for k, v := range kvs {
 		switch k {
@@ -158,7 +158,7 @@ type Kerning struct {
 	Amount float32 // How much the x position should be adjusted when drawing the second character immediately following the first.
 }
 
-func BuildKerning(kvs map[string]value) Kerning {
+func buildKerning(kvs map[string]value) Kerning {
 	g := Kerning{}
 	for k, v := range kvs {
 		switch k {

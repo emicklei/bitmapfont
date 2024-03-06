@@ -40,10 +40,10 @@ func (t Text) Render(callback func([]TextureVertex)) {
 			charBottom := charTop + char.Height
 			// all quad points
 			vertices := []TextureVertex{
-				TextureVertex{char.X / sw, char.Y / sh, left, charTop},
-				TextureVertex{(char.X + char.Width) / sw, char.Y / sh, left + char.Width, charTop},
-				TextureVertex{(char.X + char.Width) / sw, (char.Y + char.Height) / sh, left + char.Width, charBottom},
-				TextureVertex{char.X / sw, (char.Y + char.Height) / sh, left, charBottom},
+				{char.X / sw, char.Y / sh, left, charTop},
+				{(char.X + char.Width) / sw, char.Y / sh, left + char.Width, charTop},
+				{(char.X + char.Width) / sw, (char.Y + char.Height) / sh, left + char.Width, charBottom},
+				{char.X / sw, (char.Y + char.Height) / sh, left, charBottom},
 			}
 			callback(vertices)
 			left += char.Xadvance

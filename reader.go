@@ -12,12 +12,14 @@ type Reader struct {
 	font *Font
 }
 
-func (r Reader) Font() *Font { return r.font }
+func NewReader() Reader {
+	return Reader{}
+}
 
-func (r *Reader) Read(filename string) error {
+func (r *Reader) Read(filename string) (*Font, error) {
 	f, err := os.Open(filename)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer f.Close()
 	r.font = NewFont()
@@ -28,25 +30,25 @@ func (r *Reader) Read(filename string) error {
 		props := spaceSeparated[1:]
 		kvs, err := parseKeyValues(props)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		r.buildFont(tag, kvs)
 	}
-	return nil
+	return r.font, nil
 }
 
 func (r *Reader) buildFont(tag string, kvs map[string]value) {
 	switch tag {
 	case "info":
-		r.font.info = BuildInfo(kvs)
+		r.font.info = buildInfo(kvs)
 	case "common":
-		r.font.Common = BuildCommon(kvs)
+		r.font.Common = buildCommon(kvs)
 	case "page":
-		r.font.page = BuildPage(kvs)
+		r.font.page = buildPage(kvs)
 	case "char":
-		r.font.addChar(BuildChar(kvs))
+		r.font.addChar(buildChar(kvs))
 	case "kerning":
-		r.font.addKerning(BuildKerning(kvs))
+		r.font.addKerning(buildKerning(kvs))
 	}
 }
 
