@@ -39,13 +39,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer window.Destroy()
 
 	window.MakeContextCurrent()
 	glfw.SwapInterval(1)
 	gl.Init()
 
 	initScene()
-	initFont()
+	initFontAndText()
 	defer gl.DeleteTextures(1, &fontTexture)
 
 	runtime.LockOSThread()
@@ -54,9 +55,12 @@ func main() {
 		window.SwapBuffers()
 		glfw.PollEvents()
 	}
+
 }
 
-func initFont() {
+var txt bitmapfont.Text
+
+func initFontAndText() {
 	// read font
 	r := bitmapfont.NewReader()
 	thefont, err := r.Read("test_ubuntu.fnt")
@@ -75,6 +79,12 @@ func initFont() {
 	if err != nil {
 		panic(err)
 	}
+
+	// create text
+	var x, y, w, h float32 = 10, 10, 300, 100
+	var multitext = `Ubanita
+	together, we play`
+	txt = bitmapfont.NewText(multitext, x, y, w, h, font)
 }
 
 func initScene() {
@@ -89,6 +99,8 @@ func initScene() {
 	gl.Translatef(0.375, 0.375, 0)
 	gl.Enable(gl.TEXTURE_2D)
 }
+
+// newTexture creates OpenGL texture from image file
 
 // from https://github.com/go-gl/examples/blob/master/glfw31-gl21-cube/cube.go
 func newTexture(imgFile io.Reader) (uint32, error) {
@@ -126,16 +138,11 @@ func newTexture(imgFile io.Reader) (uint32, error) {
 }
 
 func renderText() {
-	var x, y, w, h float32 = 10, 10, 300, 100
-
-	var multitext = `Ubanita
-together, we play`
 
 	gl.BindTexture(gl.TEXTURE_2D, fontTexture)
 	gl.Enable(gl.TEXTURE_2D)
 
-	t := bitmapfont.NewText(multitext, x, y, w, h, font)
-	t.Render(func(vertices []bitmapfont.TextureVertex) {
+	txt.Render(func(vertices []bitmapfont.TextureVertex) {
 		gl.Begin(gl.QUADS)
 		for _, each := range vertices {
 			gl.TexCoord2f(each.S, each.T)
@@ -146,6 +153,7 @@ together, we play`
 	gl.Disable(gl.TEXTURE_2D)
 
 	// render bounding box
+	var x, y, w, h float32 = txt.X, txt.Y, txt.Width, txt.Height
 	gl.Begin(gl.LINE_LOOP)
 	gl.Vertex2f(x, y)
 	gl.Vertex2f(x+w, y)
