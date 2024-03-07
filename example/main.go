@@ -1,11 +1,6 @@
 package main
 
 import (
-	"errors"
-	"image"
-	"image/draw"
-	"io"
-	"os"
 	"runtime"
 
 	_ "image/png"
@@ -17,12 +12,10 @@ import (
 )
 
 const (
-	Title  = "Bitmapfont demo"
 	Width  = 800
 	Height = 400
 )
 
-var font *bitmapfont.Font
 var fontTexture uint32
 
 func main() {
@@ -35,7 +28,7 @@ func main() {
 	glfw.WindowHint(glfw.ContextVersionMajor, 2)
 	glfw.WindowHint(glfw.ContextVersionMinor, 1)
 
-	window, err := glfw.CreateWindow(Width, Height, Title, nil, nil)
+	window, err := glfw.CreateWindow(Width, Height, "Bitmap Font Demo", nil, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -62,20 +55,14 @@ var txt bitmapfont.Text
 
 func initFontAndText() {
 	// read font
-	r := bitmapfont.NewReader()
-	thefont, err := r.Read("test_ubuntu.fnt")
+	r := bitmapfont.NewFontReader()
+	font, err := r.ReadFile("test_ubuntu.fnt")
 	if err != nil {
 		panic(err)
 	}
-	font = thefont
 
-	// read font texture
-	f, err := os.Open("test_ubuntu.png")
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-	fontTexture, err = newTexture(f)
+	t := bitmapfont.NewTextureReader()
+	fontTexture, err = t.ReadFile("test_ubuntu.png")
 	if err != nil {
 		panic(err)
 	}
@@ -84,7 +71,7 @@ func initFontAndText() {
 	var x, y, w, h float32 = 10, 10, 300, 100
 	var multitext = `Ubanita
 	together, we play`
-	txt = bitmapfont.NewText(multitext, x, y, w, h, font)
+	txt = bitmapfont.NewText(multitext, x, y, w, h, font, fontTexture)
 }
 
 func initScene() {
@@ -100,57 +87,8 @@ func initScene() {
 	gl.Enable(gl.TEXTURE_2D)
 }
 
-// newTexture creates OpenGL texture from image file
-
-// from https://github.com/go-gl/examples/blob/master/glfw31-gl21-cube/cube.go
-func newTexture(imgFile io.Reader) (uint32, error) {
-	img, _, err := image.Decode(imgFile)
-	if err != nil {
-		return 0, err
-	}
-
-	rgba := image.NewRGBA(img.Bounds())
-	if rgba.Stride != rgba.Rect.Size().X*4 {
-		return 0, errors.New("unsupported stride")
-	}
-	draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
-
-	var texture uint32
-	gl.Enable(gl.TEXTURE_2D)
-	gl.GenTextures(1, &texture)
-	gl.BindTexture(gl.TEXTURE_2D, texture)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-	gl.TexImage2D(
-		gl.TEXTURE_2D,
-		0,
-		gl.RGBA,
-		int32(rgba.Rect.Size().X),
-		int32(rgba.Rect.Size().Y),
-		0,
-		gl.RGBA,
-		gl.UNSIGNED_BYTE,
-		gl.Ptr(rgba.Pix))
-
-	return texture, nil
-}
-
 func renderText() {
-
-	gl.BindTexture(gl.TEXTURE_2D, fontTexture)
-	gl.Enable(gl.TEXTURE_2D)
-
-	txt.Render(func(vertices []bitmapfont.TextureVertex) {
-		gl.Begin(gl.QUADS)
-		for _, each := range vertices {
-			gl.TexCoord2f(each.S, each.T)
-			gl.Vertex2f(each.X, each.Y)
-		}
-		gl.End()
-	})
-	gl.Disable(gl.TEXTURE_2D)
+	txt.Render()
 
 	// render bounding box
 	var x, y, w, h float32 = txt.X, txt.Y, txt.Width, txt.Height

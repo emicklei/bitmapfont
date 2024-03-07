@@ -3,8 +3,8 @@ package bitmapfont
 import "testing"
 
 func TestRead(t *testing.T) {
-	r := NewReader()
-	f, err := r.Read("example/test_ubuntu.fnt")
+	r := NewFontReader()
+	f, err := r.ReadFile("example/test_ubuntu.fnt")
 	if err != nil {
 		t.Error(err)
 	}

@@ -2,6 +2,8 @@ package bitmapfont
 
 import (
 	"strings"
+
+	"github.com/go-gl/gl/v2.1/gl"
 )
 
 type Text struct {
@@ -11,23 +13,15 @@ type Text struct {
 	Width    float32 // text must fit into this width
 	Height   float32 // text must fit into this height
 	Font     *Font
+	Texture  uint32
 	vertices [][]TextureVertex
 }
 
 // NewText return a new Text value for rendering a (multiline) string using a Font inside a 2d box.
-func NewText(text string, x, y, width, height float32, font *Font) Text {
-	t := Text{Text: text, X: x, Y: y, Width: width, Height: height, Font: font}
+func NewText(text string, x, y, width, height float32, font *Font, fontTexture uint32) Text {
+	t := Text{Text: text, X: x, Y: y, Width: width, Height: height, Font: font, Texture: fontTexture}
 	t.vertices = t.computeVertices()
 	return t
-}
-
-// Render calls a function with 4 TextureVertex values per character.
-// http://www.glprogramming.com/red/chapter09.html
-// http://www.angelcode.com/products/bmfont/doc/render_text.html
-func (t Text) Render(callback func([]TextureVertex)) {
-	for _, each := range t.vertices {
-		callback(each)
-	}
 }
 
 func (t Text) computeVertices() (all [][]TextureVertex) {
@@ -91,4 +85,21 @@ func (t Text) unscaledDimension() (width float32, height float32) {
 type TextureVertex struct {
 	S, T float32 // texture coordinates
 	X, Y float32 // position coordinates
+}
+
+// Render calls a function with 4 TextureVertex values per character.
+// http://www.glprogramming.com/red/chapter09.html
+// http://www.angelcode.com/products/bmfont/doc/render_text.html
+func (t Text) Render() {
+	gl.BindTexture(gl.TEXTURE_2D, t.Texture)
+	gl.Enable(gl.TEXTURE_2D)
+	for _, each := range t.vertices {
+		gl.Begin(gl.QUADS)
+		for _, other := range each {
+			gl.TexCoord2f(other.S, other.T)
+			gl.Vertex2f(other.X, other.Y)
+		}
+		gl.End()
+	}
+	gl.Disable(gl.TEXTURE_2D)
 }

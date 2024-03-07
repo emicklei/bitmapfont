@@ -8,15 +8,15 @@ import (
 	"strings"
 )
 
-type Reader struct {
+type FontReader struct {
 	font *Font
 }
 
-func NewReader() Reader {
-	return Reader{}
+func NewFontReader() *FontReader {
+	return new(FontReader)
 }
 
-func (r *Reader) Read(filename string) (*Font, error) {
+func (r *FontReader) ReadFile(filename string) (*Font, error) {
 	f, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func (r *Reader) Read(filename string) (*Font, error) {
 	return r.font, nil
 }
 
-func (r *Reader) buildFont(tag string, kvs map[string]value) {
+func (r *FontReader) buildFont(tag string, kvs map[string]value) {
 	switch tag {
 	case "info":
 		r.font.info = buildInfo(kvs)
