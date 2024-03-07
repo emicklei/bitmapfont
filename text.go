@@ -68,17 +68,19 @@ func (t Text) computeVertices() (all [][]TextureVertex) {
 
 func (t Text) unscaledDimension() (width float32, height float32) {
 	for _, each := range strings.Split(t.Text, "\n") {
+		lineWidth := float32(0)
 		var lastId uint8 = 0
 		for i := 0; i < len(each); i++ {
 			char := t.Font.CharAt(each[i])
 			if lastId != 0 {
 				// lookup space in between chars
-				width += t.Font.AmountBetween(lastId, char.Id)
+				lineWidth += t.Font.AmountBetween(lastId, char.Id)
 				lastId = char.Id
 			}
-			if i < len(each)-1 {
-				width += char.Xadvance
-			}
+			lineWidth += char.Xadvance
+		}
+		if lineWidth > width {
+			width = lineWidth
 		}
 		height += t.Font.LineHeight()
 	}
