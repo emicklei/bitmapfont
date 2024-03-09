@@ -16,9 +16,12 @@ type Text struct {
 	vertices  [][]TextureVertex
 }
 
-// NewText return a new Text value for rendering a (multiline) string using a Font inside a 2D box.
-func NewText(text string, x, y, width, height float32, font *OpenGLFont) Text {
-	t := Text{multiline: text, X: x, Y: y, width: width, height: height, font: font}
+// NewText returns a new Text value for rendering a (multiline) string using a Font inside a 2D box.
+func NewText(text string, leftTopX, leftTopY, width, height float32, font *OpenGLFont) Text {
+	if font == nil {
+		panic("font required")
+	}
+	t := Text{multiline: text, X: leftTopX, Y: leftTopY, width: width, height: height, font: font}
 	t.vertices = t.computeVertices()
 	return t
 }
