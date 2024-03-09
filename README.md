@@ -14,13 +14,13 @@
 ## usage
 
 ```
-f, _ := bitmapfont.NewOpenGLFont("test_ubuntu.fnt", "test_ubuntu.png")
-defer f.Delete()
+font, _ := bitmapfont.NewOpenGLFont("test_ubuntu.fnt", "test_ubuntu.png")
+defer font.Delete()
 
-var multitext = `Bitmapfont
+multitext := `Bitmapfont
 easy OpenGL font rendering
 for Go`
-txt = bitmapfont.NewText(multitext, 10, 10, 300, 100, f)
+txt := bitmapfont.NewText(multitext, 10, 10, 300, 100, font)
 
 txt.Render()
 ```
