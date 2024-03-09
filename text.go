@@ -8,15 +8,15 @@ import (
 
 type Text struct {
 	multiline string
-	X         float32 // center x-coordinate
-	Y         float32 // center y-coordinate
+	X         float32 // left-top x-coordinate
+	Y         float32 // left-top y-coordinate
 	width     float32 // text must fit into this width
 	height    float32 // text must fit into this height
 	font      *OpenGLFont
 	vertices  [][]TextureVertex
 }
 
-// NewText return a new Text value for rendering a (multiline) string using a Font inside a 2d box.
+// NewText return a new Text value for rendering a (multiline) string using a Font inside a 2D box.
 func NewText(text string, x, y, width, height float32, font *OpenGLFont) Text {
 	t := Text{multiline: text, X: x, Y: y, width: width, height: height, font: font}
 	t.vertices = t.computeVertices()
