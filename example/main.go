@@ -16,7 +16,7 @@ const (
 	Height = 400
 )
 
-var fontTexture uint32
+var openglfont *bitmapfont.OpenGLFont
 
 func main() {
 	if err := glfw.Init(); err != nil {
@@ -28,7 +28,7 @@ func main() {
 	glfw.WindowHint(glfw.ContextVersionMajor, 2)
 	glfw.WindowHint(glfw.ContextVersionMinor, 1)
 
-	window, err := glfw.CreateWindow(Width, Height, "Bitmap Font Demo", nil, nil)
+	window, err := glfw.CreateWindow(Width, Height, "Bitmapfont Demo", nil, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -40,7 +40,7 @@ func main() {
 
 	initScene()
 	initFontAndText()
-	defer gl.DeleteTextures(1, &fontTexture)
+	defer openglfont.Delete()
 
 	runtime.LockOSThread()
 	for !window.ShouldClose() {
@@ -54,24 +54,18 @@ func main() {
 var txt bitmapfont.Text
 
 func initFontAndText() {
-	// read font
-	r := bitmapfont.NewFontReader()
-	font, err := r.ReadFile("test_ubuntu.fnt")
+	// make opengl font
+	f, err := bitmapfont.NewOpenGLFont("test_ubuntu.fnt", "test_ubuntu.png")
 	if err != nil {
 		panic(err)
 	}
-
-	t := bitmapfont.NewTextureReader()
-	fontTexture, err = t.ReadFile("test_ubuntu.png")
-	if err != nil {
-		panic(err)
-	}
-
+	openglfont = f
 	// create text
 	var x, y, w, h float32 = 10, 10, 300, 100
-	var multitext = `Ubanita
-	together, we play`
-	txt = bitmapfont.NewText(multitext, x, y, w, h, font, fontTexture)
+	var multitext = `Bitmapfont
+easy OpenGL font rendering
+for Go`
+	txt = bitmapfont.NewText(multitext, x, y, w, h, openglfont)
 }
 
 func initScene() {
@@ -91,7 +85,7 @@ func renderText() {
 	txt.Render()
 
 	// render bounding box
-	var x, y, w, h float32 = txt.X, txt.Y, txt.Width, txt.Height
+	var x, y, w, h float32 = txt.X, txt.Y, txt.Width(), txt.Height()
 	gl.Begin(gl.LINE_LOOP)
 	gl.Vertex2f(x, y)
 	gl.Vertex2f(x+w, y)

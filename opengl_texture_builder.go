@@ -10,13 +10,13 @@ import (
 	"github.com/go-gl/gl/v2.1/gl"
 )
 
-type TextureReader struct{}
+type OpenGLTextureBuilder struct{}
 
-func NewTextureReader() TextureReader {
-	return TextureReader{}
+func NewTextureBuilder() OpenGLTextureBuilder {
+	return OpenGLTextureBuilder{}
 }
 
-func (r TextureReader) ReadFile(filename string) (uint32, error) {
+func (r OpenGLTextureBuilder) BuildFromFile(filename string) (uint32, error) {
 	// read font texture
 	f, err := os.Open(filename)
 	if err != nil {
@@ -24,13 +24,12 @@ func (r TextureReader) ReadFile(filename string) (uint32, error) {
 	}
 	defer f.Close()
 
-	return newTexture(f)
+	return buildOpenGLTexture(f)
 }
 
-// newTexture creates OpenGL texture from image file
-
+// buildOpenGLTexture creates OpenGL texture from image file
 // from https://github.com/go-gl/examples/blob/master/glfw31-gl21-cube/cube.go
-func newTexture(imgFile io.Reader) (uint32, error) {
+func buildOpenGLTexture(imgFile io.Reader) (uint32, error) {
 	img, _, err := image.Decode(imgFile)
 	if err != nil {
 		return 0, err

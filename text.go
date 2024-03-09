@@ -7,39 +7,46 @@ import (
 )
 
 type Text struct {
-	Text     string
-	X        float32 // center x-coordinate
-	Y        float32 // center y-coordinate
-	Width    float32 // text must fit into this width
-	Height   float32 // text must fit into this height
-	Font     *Font
-	Texture  uint32
-	vertices [][]TextureVertex
+	multiline string
+	X         float32 // center x-coordinate
+	Y         float32 // center y-coordinate
+	width     float32 // text must fit into this width
+	height    float32 // text must fit into this height
+	font      *OpenGLFont
+	vertices  [][]TextureVertex
 }
 
 // NewText return a new Text value for rendering a (multiline) string using a Font inside a 2d box.
-func NewText(text string, x, y, width, height float32, font *Font, fontTexture uint32) Text {
-	t := Text{Text: text, X: x, Y: y, Width: width, Height: height, Font: font, Texture: fontTexture}
+func NewText(text string, x, y, width, height float32, font *OpenGLFont) Text {
+	t := Text{multiline: text, X: x, Y: y, width: width, height: height, font: font}
 	t.vertices = t.computeVertices()
 	return t
 }
 
+func (t Text) Width() float32 {
+	return t.width
+}
+
+func (t Text) Height() float32 {
+	return t.height
+}
+
 func (t Text) computeVertices() (all [][]TextureVertex) {
 	left, top := t.X, t.Y
-	sw, sh := t.Font.Scales()
+	sw, sh := t.font.Scales()
 	uw, uh := t.unscaledDimension()
-	sx := t.Width / uw
-	sy := t.Height / uh
+	sx := t.width / uw
+	sy := t.height / uh
 
 	// split multiline text
-	for _, each := range strings.Split(t.Text, "\n") {
+	for _, each := range strings.Split(t.multiline, "\n") {
 		var lastId uint8 = 0
 		// each char
 		for i := 0; i < len(each); i++ {
-			char := t.Font.CharAt(each[i])
+			char := t.font.CharAt(each[i])
 			if lastId != 0 {
 				// lookup space in between chars
-				left += t.Font.AmountBetween(lastId, char.Id) * sx
+				left += t.font.AmountBetween(lastId, char.Id) * sx
 				lastId = char.Id
 			}
 			charTop := top + char.Yoffset*sy
@@ -54,21 +61,21 @@ func (t Text) computeVertices() (all [][]TextureVertex) {
 			all = append(all, vertices)
 			left += char.Xadvance * sx
 		}
-		top += t.Font.LineHeight() * sy
+		top += t.font.LineHeight() * sy
 		left = t.X
 	}
 	return
 }
 
 func (t Text) unscaledDimension() (width float32, height float32) {
-	for _, each := range strings.Split(t.Text, "\n") {
+	for _, each := range strings.Split(t.multiline, "\n") {
 		lineWidth := float32(0)
 		var lastId uint8 = 0
 		for i := 0; i < len(each); i++ {
-			char := t.Font.CharAt(each[i])
+			char := t.font.CharAt(each[i])
 			if lastId != 0 {
 				// lookup space in between chars
-				lineWidth += t.Font.AmountBetween(lastId, char.Id)
+				lineWidth += t.font.AmountBetween(lastId, char.Id)
 				lastId = char.Id
 			}
 			lineWidth += char.Xadvance
@@ -76,7 +83,7 @@ func (t Text) unscaledDimension() (width float32, height float32) {
 		if lineWidth > width {
 			width = lineWidth
 		}
-		height += t.Font.LineHeight()
+		height += t.font.LineHeight()
 	}
 	return
 }
@@ -91,7 +98,7 @@ type TextureVertex struct {
 // http://www.glprogramming.com/red/chapter09.html
 // http://www.angelcode.com/products/bmfont/doc/render_text.html
 func (t Text) Render() {
-	gl.BindTexture(gl.TEXTURE_2D, t.Texture)
+	gl.BindTexture(gl.TEXTURE_2D, t.font.texture)
 	gl.Enable(gl.TEXTURE_2D)
 	for _, each := range t.vertices {
 		gl.Begin(gl.QUADS)
