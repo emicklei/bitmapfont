@@ -52,6 +52,7 @@ func main() {
 }
 
 var txt bitmapfont.Text
+var footer bitmapfont.Text
 
 func initFontAndText() {
 	// make opengl font
@@ -66,6 +67,8 @@ func initFontAndText() {
 easy OpenGL font rendering
 for Go`
 	txt = bitmapfont.NewText(multitext, x, y, w, h, openglfont)
+
+	footer = bitmapfont.NewText("fixed height and unspecified (=0) width", x, 200, 0, 30, openglfont)
 }
 
 func initScene() {
@@ -83,6 +86,7 @@ func initScene() {
 
 func renderText() {
 	txt.Render()
+	footer.Render()
 
 	// render bounding box
 	var x, y, w, h float32 = txt.X, txt.Y, txt.Width(), txt.Height()

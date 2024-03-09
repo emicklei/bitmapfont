@@ -17,6 +17,7 @@ type Text struct {
 }
 
 // NewText returns a new Text value for rendering a (multiline) string using a Font inside a 2D box.
+// If the width is set to zero then the text will have a unscaled width computed from the text.
 func NewText(text string, leftTopX, leftTopY, width, height float32, font *OpenGLFont) Text {
 	if font == nil {
 		panic("font required")
@@ -40,6 +41,9 @@ func (t Text) computeVertices() (all [][]TextureVertex) {
 	uw, uh := t.unscaledDimension()
 	sx := t.width / uw
 	sy := t.height / uh
+	if t.width == 0 {
+		sx = sy
+	}
 
 	// split multiline text
 	for _, each := range strings.Split(t.multiline, "\n") {
