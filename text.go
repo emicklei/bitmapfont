@@ -7,13 +7,22 @@ import (
 )
 
 type Text struct {
-	multiline string
-	X         float32 // left-top x-coordinate
-	Y         float32 // left-top y-coordinate
-	width     float32 // text must fit into this width
-	height    float32 // text must fit into this height
-	font      *OpenGLFont
-	vertices  [][]TextureVertex
+	multiline   string
+	X           float32 // left-top x-coordinate
+	Y           float32 // left-top y-coordinate
+	width       float32 // text must fit into this width
+	height      float32 // text must fit into this height
+	font        *OpenGLFont
+	vertices    [][]TextureVertex
+	actualWidth float32
+}
+
+// Centered returns a new text centered on its X and Y coordinate.
+func (t Text) Centered() Text {
+	t.X -= t.actualWidth / 2
+	t.Y -= t.height / 2
+	t.vertices, t.actualWidth = t.computeVertices()
+	return t
 }
 
 // NewText returns a new Text value for rendering a (multiline) string using a Font inside a 2D box.
@@ -23,7 +32,7 @@ func NewText(text string, leftTopX, leftTopY, width, height float32, font *OpenG
 		panic("font required")
 	}
 	t := Text{multiline: text, X: leftTopX, Y: leftTopY, width: width, height: height, font: font}
-	t.vertices = t.computeVertices()
+	t.vertices, t.actualWidth = t.computeVertices()
 	return t
 }
 
@@ -35,7 +44,7 @@ func (t Text) Height() float32 {
 	return t.height
 }
 
-func (t Text) computeVertices() (all [][]TextureVertex) {
+func (t Text) computeVertices() (all [][]TextureVertex, actualWidth float32) {
 	left, top := t.X, t.Y
 	sw, sh := t.font.Scales()
 	uw, uh := t.unscaledDimension()
@@ -44,6 +53,7 @@ func (t Text) computeVertices() (all [][]TextureVertex) {
 	if t.width == 0 {
 		sx = sy
 	}
+	actualWidth = uw * sx
 
 	// split multiline text
 	for _, each := range strings.Split(t.multiline, "\n") {
