@@ -40,6 +40,10 @@ func (t Text) Width() float32 {
 	return t.width
 }
 
+func (t Text) ActualWidth() float32 {
+	return t.actualWidth
+}
+
 func (t Text) Height() float32 {
 	return t.height
 }
