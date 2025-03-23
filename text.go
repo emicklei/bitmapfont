@@ -10,7 +10,7 @@ type Text struct {
 	multiline   string
 	X           float32 // left-top x-coordinate
 	Y           float32 // left-top y-coordinate
-	width       float32 // text must fit into this width
+	widthZ      float32 // text must fit into this width, or zero
 	height      float32 // text must fit into this height
 	font        *OpenGLFont
 	vertices    [][]TextureVertex
@@ -27,17 +27,17 @@ func (t Text) Centered() Text {
 
 // NewText returns a new Text value for rendering a (multiline) string using a Font inside a 2D box.
 // If the width is set to zero then the text will have a unscaled width computed from the text.
-func NewText(text string, leftTopX, leftTopY, width, height float32, font *OpenGLFont) Text {
+func NewText(text string, leftTopX, leftTopY, widthOrZero, height float32, font *OpenGLFont) Text {
 	if font == nil {
 		panic("font required")
 	}
-	t := Text{multiline: text, X: leftTopX, Y: leftTopY, width: width, height: height, font: font}
+	t := Text{multiline: text, X: leftTopX, Y: leftTopY, widthZ: widthOrZero, height: height, font: font}
 	t.vertices, t.actualWidth = t.computeVertices()
 	return t
 }
 
 func (t Text) Width() float32 {
-	return t.width
+	return t.widthZ
 }
 
 func (t Text) ActualWidth() float32 {
@@ -52,9 +52,9 @@ func (t Text) computeVertices() (all [][]TextureVertex, actualWidth float32) {
 	left, top := t.X, t.Y
 	sw, sh := t.font.Scales()
 	uw, uh := t.unscaledDimension()
-	sx := t.width / uw
+	sx := t.widthZ / uw
 	sy := t.height / uh
-	if t.width == 0 {
+	if t.widthZ == 0 {
 		sx = sy
 	}
 	actualWidth = uw * sx
@@ -92,7 +92,7 @@ func (t Text) unscaledDimension() (width float32, height float32) {
 	for _, each := range strings.Split(t.multiline, "\n") {
 		lineWidth := float32(0)
 		var lastId uint8 = 0
-		for i := 0; i < len(each); i++ {
+		for i := range len(each) {
 			char := t.font.CharAt(each[i])
 			if lastId != 0 {
 				// lookup space in between chars

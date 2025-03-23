@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"runtime"
 
 	_ "image/png"
@@ -69,6 +70,7 @@ for Go`
 	txt = bitmapfont.NewText(multitext, x, y, w, h, openglfont)
 
 	footer = bitmapfont.NewText("fixed height and unspecified (=0) width", x, 200, 0, 30, openglfont)
+	fmt.Println("footer actual width", int(footer.ActualWidth()))
 }
 
 func initScene() {
@@ -84,12 +86,10 @@ func initScene() {
 	gl.Enable(gl.TEXTURE_2D)
 }
 
-func renderText() {
-	txt.Render()
-	footer.Render()
-
+func renderText(bf bitmapfont.Text) {
+	bf.Render()
 	// render bounding box
-	var x, y, w, h float32 = txt.X, txt.Y, txt.Width(), txt.Height()
+	var x, y, w, h float32 = bf.X, bf.Y, bf.Width(), bf.Height()
 	gl.Begin(gl.LINE_LOOP)
 	gl.Vertex2f(x, y)
 	gl.Vertex2f(x+w, y)
@@ -97,10 +97,11 @@ func renderText() {
 	gl.Vertex2f(x, y+h)
 	gl.End()
 
+	footer.Render()
 }
 
 func drawScene() {
 	gl.ClearColor(0.0, 0.0, 0.0, 0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
-	renderText()
+	renderText(txt)
 }

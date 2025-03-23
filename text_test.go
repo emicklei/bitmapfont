@@ -1,6 +1,9 @@
 package bitmapfont
 
-import "testing"
+import (
+	_ "image/png"
+	"testing"
+)
 
 func TestNewTextNoFont(t *testing.T) {
 	defer func() {
